@@ -1,0 +1,11 @@
+dependencies:
+  - python=3.12
+  - pandas=2.2.3
+  - matplotlib=3.9.3
+  - scikit-learn=1.6.0
+  - pip
+  - pip:
+      - tensorflow==2.16.2
+      - azureml-dataset-runtime
+      - azureml-defaults
+      - mlflow==2.18.0

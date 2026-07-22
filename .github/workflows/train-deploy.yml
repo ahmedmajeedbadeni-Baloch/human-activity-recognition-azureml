@@ -1,0 +1,49 @@
+name: Train HAR model on Azure ML
+
+# This workflow submits config/job.yaml as an Azure ML training job whenever
+# code under src/training or config changes on main. It was written fresh
+# from config/job.yaml (the original CI/CD workflow file was empty in this
+# repo) and has not been run against a live Azure ML workspace yet -- treat
+# it as a draft and verify it end to end before relying on it.
+#
+# Required setup before this will work:
+#   1. An Azure service principal with access to the "Com774-Ahmed"
+#      resource group / workspace.
+#   2. That service principal's credentials saved as a repository secret
+#      named AZURE_CREDENTIALS (JSON output of:
+#      az ad sp create-for-rbac --name <name> --role contributor
+#        --scopes /subscriptions/<sub-id>/resourceGroups/Com774-Ahmed
+#        --sdk-auth)
+#   3. The dataset registered in the workspace as "HAR_dataset:1"
+#      (referenced by config/job.yaml).
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "src/training/**"
+      - "config/**"
+  workflow_dispatch:
+
+jobs:
+  submit-training-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Install Azure ML CLI extension
+        run: az extension add -n ml -y
+
+      - name: Submit training job to Azure ML
+        run: |
+          az ml job create \
+            --file config/job.yaml \
+            --resource-group Com774-Ahmed \
+            --workspace-name Com774-Ahmed \
+            --stream

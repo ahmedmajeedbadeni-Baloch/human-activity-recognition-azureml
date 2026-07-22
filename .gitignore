@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+env/
+venv/
+myenv/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Regenerated train/test splits (produced by running the notebook/pipeline
+# on data/raw/dataset.csv -- dataset.csv itself is committed since the repo
+# should run out of the box)
+data/raw/train.csv
+data/raw/test.csv
+data/processed/*.csv
+*.h5
+*.weights.h5
+*.pkl
+*.joblib
+
+# Logs
+*.log
+logs/
+mlruns/
+
+# Azure ML
+.azureml/
+config.json
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/

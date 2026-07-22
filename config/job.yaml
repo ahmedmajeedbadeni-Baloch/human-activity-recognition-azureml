@@ -1,0 +1,28 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+type: command
+
+code: ../src/training  # Adjust based on your file structure
+
+command: >-
+  python model.py 
+  --training_data ${{inputs.training_data}}
+  --output_dir ${{outputs.output_dir}}
+
+inputs:
+  training_data:
+    type: uri_file
+    path: azureml:HAR_dataset:1
+    mode: ro_mount
+
+outputs:
+  output_dir:
+    type: uri_folder
+    path: azureml://datastores/workspaceblobstore/paths/outputs
+
+environment:
+  id: azureml:/subscriptions/<YOUR_SUBSCRIPTION_ID>/resourceGroups/Com774-Ahmed/providers/Microsoft.MachineLearningServices/workspaces/Com774-Ahmed/environments/sklearn-env/versions/2
+
+compute: azureml:Ahmed
+
+experiment_name: Com774-Ahmed
+description: Human Activity Recognition Analysis - Ahmed Assignments
