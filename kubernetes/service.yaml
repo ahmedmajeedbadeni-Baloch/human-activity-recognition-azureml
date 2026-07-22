@@ -1,0 +1,20 @@
+# Exposes the har-model-deployment pods behind a single stable address.
+# type: LoadBalancer requests an external IP from your cluster's cloud
+# provider (works on AKS/EKS/GKE; on a local cluster like minikube use
+# `minikube service har-model-service` instead, or change this to
+# NodePort/ClusterIP as appropriate for where you're actually running this).
+#
+# Unverified, has not been applied to a real cluster.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: har-model-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: har-model
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5001

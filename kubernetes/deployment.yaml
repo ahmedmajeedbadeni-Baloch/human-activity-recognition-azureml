@@ -1,0 +1,64 @@
+# Deploys the container built from ../Dockerfile to a Kubernetes cluster.
+#
+# Important gap: the Dockerfile is built for Azure ML's own container
+# deployment path, where Azure ML automatically mounts the registered model
+# into the container and sets AZUREML_MODEL_DIR for you. A plain Kubernetes
+# cluster (this file) has no such mechanism built in. The volumeMount below
+# points at a PersistentVolumeClaim named "har-model-pvc" that you need to
+# create yourself and populate with the exported model directory (the same
+# "model/" folder that model.py saves via model.save()). Swap this for
+# whatever your own model storage/retrieval setup looks like, for example an
+# initContainer that pulls the model from blob storage on startup.
+#
+# This manifest has not been applied to a real cluster and is unverified.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: har-model-deployment
+  labels:
+    app: har-model
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: har-model
+  template:
+    metadata:
+      labels:
+        app: har-model
+    spec:
+      containers:
+        - name: har-model
+          image: docker.io/<YOUR_DOCKERHUB_USERNAME>/human-activity-recognition:latest
+          ports:
+            - containerPort: 5001
+          env:
+            - name: AZUREML_MODEL_DIR
+              value: /app/model
+          volumeMounts:
+            - name: model-volume
+              mountPath: /app/model
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5001
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5001
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+      volumes:
+        - name: model-volume
+          persistentVolumeClaim:
+            claimName: har-model-pvc
